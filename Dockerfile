@@ -25,9 +25,35 @@ COPY . /var/www/html
 COPY server.crt /etc/ssl/certs/
 COPY server.key /etc/ssl/private/
 
-# Add SSL to the existing default site (which already has PHP working)
-RUN sed -i 's/<VirtualHost \*:80>/<VirtualHost *:80 *:443>/' /etc/apache2/sites-available/000-default.conf && \
-  sed -i '/<VirtualHost/a \\tSSLEngine on\n\tSSLCertificateFile /etc/ssl/certs/server.crt\n\tSSLCertificateKeyFile /etc/ssl/private/server.key' /etc/apache2/sites-available/000-default.conf
+# Ensure Apache listens on both ports 80 and 443
+RUN echo 'Listen 80\n\
+  <IfModule ssl_module>\n\
+  Listen 443\n\
+  </IfModule>\n\
+  <IfModule mod_gnutls.c>\n\
+  Listen 443\n\
+  </IfModule>' > /etc/apache2/ports.conf
+
+# Replace default HTTP VirtualHost (remove SSL from port 80)
+RUN echo '<VirtualHost *:80>\n\
+  ServerAdmin webmaster@localhost\n\
+  DocumentRoot /var/www/html\n\
+  # Trust X-Forwarded-Proto header from CloudFlare/proxies\n\
+  SetEnvIf X-Forwarded-Proto "https" HTTPS=on\n\
+  ErrorLog ${APACHE_LOG_DIR}/error.log\n\
+  CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
+  </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
+
+# Create separate HTTPS VirtualHost for port 443
+RUN echo '<VirtualHost *:443>\n\
+  SSLEngine on\n\
+  SSLCertificateFile /etc/ssl/certs/server.crt\n\
+  SSLCertificateKeyFile /etc/ssl/private/server.key\n\
+  ServerAdmin webmaster@localhost\n\
+  DocumentRoot /var/www/html\n\
+  ErrorLog ${APACHE_LOG_DIR}/error.log\n\
+  CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
+  </VirtualHost>' > /etc/apache2/sites-available/default-ssl.conf && a2ensite default-ssl.conf
 
 # Expose both HTTP and HTTPS ports
 EXPOSE 80 443

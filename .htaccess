@@ -9,7 +9,9 @@ IndexIgnore *
 DirectoryIndex index.php
 
 RewriteEngine on
+# Only redirect to HTTPS if not already using HTTPS (including via proxy like CloudFlare)
 RewriteCond %{HTTPS} off
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
 RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
 # If storing your installation in a sub-folder, uncomment the following line (remove the # symbol) and replace [subfolder] with the name of your subfolder
