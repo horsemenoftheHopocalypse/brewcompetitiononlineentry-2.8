@@ -20,7 +20,8 @@
  * *** https://www.godaddy.com/help/viewing-your-database-details-with-shared-hosting-accounts-39
  */
 
-$hostname = 'localhost';
+// For Docker: use 'db' as hostname (service name from docker-compose.yml)
+$hostname = 'db';
 
 /**
  * Enter the username for your database (generally the same as your login code 
@@ -31,7 +32,7 @@ $hostname = 'localhost';
  */
 
 
-$username = '';
+$username = 'bcoem_user';
 
 
 /**
@@ -40,7 +41,7 @@ $username = '';
  * $password = 'flintsone'.
  */
 
-$password = '';
+$password = 'bcoem_password';
 
 /**
  * The following line is the name of your MySQL database you set up already.
@@ -48,7 +49,7 @@ $password = '';
  * http://brewingcompetitions.com/install-instructions for setup instructions.
  */
 
-$database = '';
+$database = 'bcoem';
 
 
 /**
@@ -192,7 +193,12 @@ $sub_directory = '';
 
 $base_url = 'http://';
 if (is_https()) $base_url = 'https://';
-$base_url .= $_SERVER['SERVER_NAME'].$sub_directory.'/';
+$base_url .= $_SERVER['SERVER_NAME'];
+// Add port if non-standard
+if (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] != '80' && $_SERVER['SERVER_PORT'] != '443') {
+    $base_url .= ':'.$_SERVER['SERVER_PORT'];
+}
+$base_url .= $sub_directory.'/';
 
 /*
  * ******************************************************************************
