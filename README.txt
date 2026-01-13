@@ -68,6 +68,39 @@ free Apache web server package that includes both PHP and MySQL.
 - Windows:   http://www.apachefriends.org/en/xampp-windows.html
 - Linux:     http://www.apachefriends.org/en/xampp-linux.html
 
+***********************************************************************************
+Docker Development Setup
+***********************************************************************************
+For development purposes, a Docker Compose environment is available in this repository.
+This provides a containerized PHP 7.3 + MySQL 8.0 environment with phpMyAdmin.
+
+Prerequisites:
+- Docker and Docker Compose installed on your system
+- SSL certificates (server.crt and server.key) in the project root directory
+  (self-signed certificates are acceptable for local development)
+
+To generate self-signed certificates for local development:
+  openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout server.key -out server.crt
+
+To start the environment:
+  docker-compose up -d
+
+Services:
+- Application: https://localhost:8000 (HTTPS only)
+- phpMyAdmin:  http://localhost:8080
+- MySQL Database Credentials:
+  - Host: db
+  - Database: bcoem
+  - User: bcoem_user
+  - Password: bcoem_password
+  - Root Password: bcoem_root_password
+
+Note: The Dockerfile is configured for HTTPS only. HTTP connections will not work.
+
+***********************************************************************************
+Browser Requirements
+***********************************************************************************
 A modern web browser is also required to take full advantage of the many HTML 5
 attributes and functions of the application. The latest versions of Chrome, Firefox,
 Microsoft Edge, and Safari render BCOE&M correctly. Internet Explorer is not supported.
